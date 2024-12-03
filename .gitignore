@@ -2,5 +2,4 @@ bin/
 obj/
 .vs/
 ToDo.API/Application/
-ToDo.API/Infrastructure/
 .gitignore
