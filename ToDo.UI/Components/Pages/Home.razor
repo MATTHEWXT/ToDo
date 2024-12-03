@@ -1,0 +1,21 @@
+﻿@page "/"
+@inject Greeter.GreeterClient grpcClient
+@rendermode InteractiveServer
+
+<h3>Data from gRPC:</h3>
+<p>@responseData</p>
+
+<h4>Enter your details:</h4>
+<input @bind="name" placeholder="Name" />
+<button @onclick="SendRequest">Send Request</button>
+
+@code {
+    private string name;
+    private string responseData;
+
+    private async Task SendRequest()
+    {
+        var response = await grpcClient.SayHelloAsync(new HelloRequest { Name = name });
+        responseData = response.Message;
+    }
+}
