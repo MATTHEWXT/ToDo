@@ -2,6 +2,6 @@ bin/
 obj/
 .vs/
 ToDo.API/Application/
-ToDo.API/Domain/
+ToDo.API/Domain/Core
 ToDo.API/Infrastructure/
 .gitignore
