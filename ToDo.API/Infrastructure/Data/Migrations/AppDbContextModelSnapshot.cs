@@ -22,11 +22,13 @@ namespace ToDo.API.Infrastructure.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ToDo.API.Domain.Entities.TaskCategory", b =>
+            modelBuilder.Entity("ToDo.API.Domain.Entities.MissionCategory", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
@@ -43,17 +45,17 @@ namespace ToDo.API.Infrastructure.Data.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("TaskCategories");
+                    b.ToTable("MissionCategories");
                 });
 
-            modelBuilder.Entity("ToDo.API.Domain.Entities.TaskItem", b =>
+            modelBuilder.Entity("ToDo.API.Domain.Entities.MissionItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
@@ -76,12 +78,12 @@ namespace ToDo.API.Infrastructure.Data.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("TaskItems");
+                    b.ToTable("MissionItems");
                 });
 
-            modelBuilder.Entity("ToDo.API.Domain.Entities.TaskItem", b =>
+            modelBuilder.Entity("ToDo.API.Domain.Entities.MissionItem", b =>
                 {
-                    b.HasOne("ToDo.API.Domain.Entities.TaskCategory", "Category")
+                    b.HasOne("ToDo.API.Domain.Entities.MissionCategory", "Category")
                         .WithMany("Items")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -90,7 +92,7 @@ namespace ToDo.API.Infrastructure.Data.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("ToDo.API.Domain.Entities.TaskCategory", b =>
+            modelBuilder.Entity("ToDo.API.Domain.Entities.MissionCategory", b =>
                 {
                     b.Navigation("Items");
                 });

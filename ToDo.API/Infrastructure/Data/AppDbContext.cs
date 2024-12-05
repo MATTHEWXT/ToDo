@@ -7,8 +7,8 @@ namespace ToDo.API.Infrastructure.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<MissionItem> TaskItems { get; set; }
-        public DbSet<MissionCategory> TaskCategories { get; set; }
+        public DbSet<MissionItem> MissionItems { get; set; }
+        public DbSet<MissionCategory> MissionCategories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

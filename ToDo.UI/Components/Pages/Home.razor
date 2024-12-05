@@ -1,83 +1,199 @@
 ﻿@page "/"
 @rendermode InteractiveServer
 
-@page "/create-task"
-
 @using System.Collections.Generic
+@using ToDo.UI.Protos
 
-@inject TaskItemService.TaskItemServiceClient TaskItemServiceClient
+@inject MissionItemService.MissionItemServiceClient MissionItemServiceClient
 
-<h3>Create New Task</h3>
+<h3 class="bio-title">Mission Manager</h3>
 
-<div class="container">
-    <!-- Task creation form -->
-    <div class="row">
-        <div class="col-md-6">
-            <form @onsubmit="CreateTask" class="form-horizontal">
-                <div class="form-group">
-                    <label for="taskName">Task Name</label>
-                    <input type="text" id="taskName" class="form-control" @bind="taskRequest.Name" placeholder="Enter task name" required />
-                </div>
-                <div class="form-group">
-                    <label for="taskDescription">Description</label>
-                    <textarea id="taskDescription" class="form-control" @bind="taskRequest.Description" placeholder="Enter task description" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Create Task</button>
-            </form>
+<div class="container mt-4">
+    <!-- Добавление новой миссии -->
+    <div class="card mb-4 shadow-lg border-gold">
+        <div class="card-header bg-dark text-light">
+            <h5>Add New Mission</h5>
+        </div>
+        <div class="card-body bg-light">
+            <div class="mb-3">
+                <label for="name" class="form-label text-primary">Mission Name</label>
+                <input type="text" id="name" class="form-control bg-dark text-light border-light" @bind="newMission.Name" placeholder="Enter mission name" />
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label text-primary">Description</label>
+                <textarea id="description" class="form-control bg-dark text-light border-light" @bind="newMission.Description" placeholder="Enter mission description"></textarea>
+            </div>
+            <button class="btn btn-primary shadow-none" @onclick="CreateMission">
+                <i class="fas fa-plus-circle"></i> Add Mission
+            </button>
         </div>
     </div>
 
-    <hr />
-
-    <!-- Task list -->
-    <h4>In Progress</h4>
-    <div class="list-group">
-        @foreach (var task in inProgressTasks)
-        {
-            <div class="list-group-item">
-                <h5>@task.Name</h5>
-                <p>@task.Description</p>
-            </div>
-        }
+    <!-- Кнопки фильтрации -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="text-primary">Missions</h5>
+        <div>
+            <button class="btn btn-warning shadow-none" @onclick="LoadInProgressMissions">
+                <i class="fas fa-spinner"></i> In Progress
+            </button>
+            <button class="btn btn-success shadow-none me-2" @onclick="LoadCompletedMissions">
+                <i class="fas fa-check-circle"></i> Completed
+            </button>
+        </div>
     </div>
 
-    <hr />
+    <!-- Кнопка массового удаления -->
+    <button class="btn btn-danger mb-3" @onclick="DeleteSelectedMissions" disabled="@(selectedMissions.Count == 0)">
+        <i class="fas fa-trash"></i> Delete Selected
+    </button>
 
-    <h4>Completed</h4>
-    <div class="list-group">
-        @foreach (var task in completedTasks)
+    <!-- Отображение миссий -->
+    <div class="row">
+        @if (missions.Count == 0)
         {
-            <div class="list-group-item">
-                <h5>@task.Name</h5>
-                <p>@task.Description</p>
-            </div>
+            <p class="text-muted">No missions available.</p>
+        }
+        else
+        {
+            @foreach (var mission in missions)
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="card border-gold">
+                        <div class="card-body bg-dark text-light">
+                            <h5 class="card-title">@mission.Name</h5>
+                            <p class="card-text">@mission.Description</p>
+                            <span class="badge @(mission.Status == "Completed" ? "bg-success" : "bg-warning")">@mission.Status</span>
+                            <div class="mt-2">
+                                <!-- Чекбокс для выбора миссий -->
+                                <input type="checkbox" @onchange="(e) => ToggleSelection(mission.Id, e.Value)" />
+                                <button class="btn btn-info ms-2" @onclick="() => EditStatus(mission.Id, mission.Status)">
+                                    <i class="fas fa-edit">
+                                        @if (mission.Status == "In progress")
+                                        {
+                                            @:Complete
+                                        }
+                                        else if (mission.Status == "Completed")
+                                        {
+                                            @:Not completed
+                                        }
+                                    </i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         }
     </div>
 </div>
 
 @code {
-    private CreateMissionItemReq taskRequest = new CreateMissionItemReq();
-    private List<TaskItem> inProgressTasks = new List<TaskItem>();
-    private List<TaskItem> completedTasks = new List<TaskItem>();
+    private CreateMissionItemReq newMission = new CreateMissionItemReq();
+    private List<MissionItem> missions = new List<MissionItem>();
+    private HashSet<string> selectedMissions = new HashSet<string>();
 
-    private async Task CreateTask()
+    private async Task CreateMission()
     {
-        if (string.IsNullOrWhiteSpace(taskRequest.Name) || string.IsNullOrWhiteSpace(taskRequest.Description))
+        try
         {
-            return;
+            var response = await MissionItemServiceClient.CreateMissionItemAsync(newMission);
+            Console.WriteLine(response.Message);
+            newMission = new CreateMissionItemReq();
+            await LoadInProgressMissions();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating mission: {ex.Message}");
         }
     }
 
-    public class TaskRequest
+    private async Task LoadCompletedMissions()
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
+        try
+        {
+            var response = await MissionItemServiceClient.GetCompletedMissionItemAsync(new Google.Protobuf.WellKnownTypes.Empty());
+            missions = response.MissionItems.ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading completed missions: {ex.Message}");
+        }
     }
 
-    public class TaskItem
+    private async Task LoadInProgressMissions()
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Status { get; set; } // "InProgress" or "Completed"
+        try
+        {
+            var response = await MissionItemServiceClient.GetInProgressMissionItemAsync(new Google.Protobuf.WellKnownTypes.Empty());
+            missions = response.MissionItems.ToList();
+
+            selectedMissions.Clear();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading in-progress missions: {ex.Message}");
+        }
+    }
+
+    private async Task EditStatus(string missionId, string missionStatus)
+    {
+        try
+        {
+            var editRequest = new EditStatusOfMissionItemReq
+                {
+                    Id = missionId
+                };
+
+            var response = await MissionItemServiceClient.EditStatusOfMissionItemAsync(editRequest);
+            Console.WriteLine(response.Message);
+
+            if (missionStatus == "In progress")
+            {
+                await LoadInProgressMissions();
+            }
+            else if (missionStatus == "Completed")
+            {
+                await LoadCompletedMissions();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error editing mission status: {ex.Message}");
+        }
+    }
+
+    private void ToggleSelection(string missionId, object? isCkecked)
+    {
+        if (isCkecked is bool selected && selected)
+        {
+            selectedMissions.Add(missionId);
+        }
+        else
+        {
+            selectedMissions.Remove(missionId);
+        }
+    }
+
+    private async Task DeleteSelectedMissions()
+    {
+        try
+        {
+            var deleteRequest = new MissionItemIdReq
+                {
+                    MissionItemIds =
+                {
+                    selectedMissions.Select(id => new MissionItemId { Id = id })
+                }
+                };
+
+            var response = await MissionItemServiceClient.DeleteMissionItemsAsync(deleteRequest);
+
+            selectedMissions.Clear();
+            await LoadInProgressMissions();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting missions: {ex.Message}");
+        }
     }
 }

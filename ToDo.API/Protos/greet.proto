@@ -2,16 +2,17 @@ syntax = "proto3";
 
 option csharp_namespace = "ToDo.API.Protos";
 
-package greet;
+package todo;
 import "google/protobuf/empty.proto";
 
 // The greeting service definition.
 service MissionItemService {
   // Sends a greeting
-  rpc CreateMissionItem (CreateMissionItemReq) returns (CreateRes);
-
-  rpc GetCompletedMissionkItem (google.protobuf.Empty) returns (GetCompletedMissionItemsResponse);
-
+  rpc CreateMissionItem (CreateMissionItemReq) returns (messageRes);
+  rpc GetCompletedMissionItem (google.protobuf.Empty) returns (GetMissionItemsResponse);
+  rpc GetInProgressMissionItem (google.protobuf.Empty) returns (GetMissionItemsResponse);
+  rpc EditStatusOfMissionItem (EditStatusOfMissionItemReq) returns (messageRes);
+  rpc DeleteMissionItems (MissionItemIdReq) returns (messageRes);
 }
 
 // The request message containing the user's name.
@@ -21,16 +22,30 @@ message CreateMissionItemReq {
 }
 
 // The response message containing the greetings.
-message CreateRes {
+message messageRes {
   string message = 1;
 }
 
-message MissionItem {
-    string name = 1;
-    string description = 2;
-    string status = 3; 
+message EditStatusOfMissionItemReq {
+  string Id = 1;
 }
 
-message GetCompletedMissionItemsResponse {
+message MissionItem {
+    string Id = 1;
+    string name = 2;
+    string description = 3;
+    string status = 4; 
+}
+
+message GetMissionItemsResponse {
     repeated MissionItem missionItems = 1;
+}
+
+
+message MissionItemId {
+    string Id = 1; 
+}
+
+message MissionItemIdReq {
+    repeated MissionItemId missionItemIds = 1;
 }

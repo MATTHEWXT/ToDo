@@ -2,6 +2,7 @@
 using ToDo.API.Domain.Core.Models;
 using ToDo.API.Domain.Core.Repositories;
 using ToDo.API.Domain.Core.Specifications;
+using ToDo.API.Domain.Entities;
 using ToDo.API.Infrastructure.Data;
 
 namespace ToDo.API.Infrastructure.Repositories
@@ -22,15 +23,16 @@ namespace ToDo.API.Infrastructure.Repositories
             return entity;
         }
 
-        public async Task Delete(T entity)
+        public async Task DeleteRangeAsync(List<T> listItems)
         {
-            _dbContext.Set<T>().Remove(entity);
+            _dbContext.Set<T>().RemoveRange(listItems);
+
             await _dbContext.SaveChangesAsync();
         }
 
-        public Task<T> GetByIdAsync(Guid id)
+        public async Task<T> GetByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return await _dbContext.Set<T>().FindAsync(id) ?? throw new InvalidOperationException("Entity not found");
         }
 
         public async Task<IList<T>> ListAsync(IBaseSpecification<T> spec)
@@ -38,7 +40,7 @@ namespace ToDo.API.Infrastructure.Repositories
             return await ApplySpecification(spec).ToListAsync();
         }
 
-        public async Task Update(T entity)
+        public async Task UpdateAsync(T entity)
         {
             _dbContext.Update(entity);
             await _dbContext.SaveChangesAsync();

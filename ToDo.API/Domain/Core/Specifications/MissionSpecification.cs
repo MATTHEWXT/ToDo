@@ -8,5 +8,10 @@ namespace ToDo.API.Domain.Core.Specifications
         {
             return new BaseSpecification<MissionItem>(mi => mi.CategoryId == categoryId);
         }
+
+        public static BaseSpecification<MissionItem> GetMissionItemById(Guid id)
+        {
+            return new BaseSpecification<MissionItem>(mi => mi.Id == id);
+        }
     }
 }
