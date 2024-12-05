@@ -120,5 +120,22 @@ namespace ToDo.API.Services
             }
         }
 
+        public override async Task<messageRes> UpdateMissionItem(UpdateMissionItemReq req, ServerCallContext context)
+        {
+            try
+            {
+                await _missionService.UpdateMissionItem(Guid.Parse(req.Id), req.Name, req.Description);
+
+                string message = "The task item was update successfully.";
+                return new messageRes { Message = message };
+
+            }
+            catch (Exception ex)
+            {
+                string errorMessage = $"Error occurred: {ex.Message}";
+
+                return new messageRes { Message = errorMessage };
+            }
+        }
     }
 }

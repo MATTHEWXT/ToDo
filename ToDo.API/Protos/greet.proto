@@ -13,6 +13,7 @@ service MissionItemService {
   rpc GetInProgressMissionItem (google.protobuf.Empty) returns (GetMissionItemsResponse);
   rpc EditStatusOfMissionItem (EditStatusOfMissionItemReq) returns (messageRes);
   rpc DeleteMissionItems (MissionItemIdReq) returns (messageRes);
+  rpc UpdateMissionItem (UpdateMissionItemReq) returns (messageRes);
 }
 
 // The request message containing the user's name.
@@ -24,6 +25,12 @@ message CreateMissionItemReq {
 // The response message containing the greetings.
 message messageRes {
   string message = 1;
+}
+
+message UpdateMissionItemReq{
+    string id = 1;
+    string name = 2;
+    string description = 3;
 }
 
 message EditStatusOfMissionItemReq {

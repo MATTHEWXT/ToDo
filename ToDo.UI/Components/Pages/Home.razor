@@ -23,8 +23,9 @@
                 <label for="description" class="form-label text-primary">Description</label>
                 <textarea id="description" class="form-control bg-dark text-light border-light" @bind="newMission.Description" placeholder="Enter mission description"></textarea>
             </div>
-            <button class="btn btn-primary shadow-none" @onclick="CreateMission">
-                <i class="fas fa-plus-circle"></i> Add Mission
+
+            <button class="btn btn-primary shadow-none" @onclick="CallMethodForMission">
+                <i class="fas fa-plus-circle"></i> @(isEditMode ? "Update Mission" : "Add Mission")
             </button>
         </div>
     </div>
@@ -78,6 +79,12 @@
                                         }
                                     </i>
                                 </button>
+                                @if (mission.Status == "In progress")
+                                {
+                                    <button class="btn btn-info ms-2" @onclick="() => UpdateForForm(mission)">
+                                        <i class="fas fa-edit">Edit</i>
+                                    </button>
+                                }
                             </div>
                         </div>
                     </div>
@@ -91,6 +98,10 @@
     private CreateMissionItemReq newMission = new CreateMissionItemReq();
     private List<MissionItem> missions = new List<MissionItem>();
     private HashSet<string> selectedMissions = new HashSet<string>();
+
+    private UpdateMissionItemReq missionToUpdate = new UpdateMissionItemReq();
+    private bool isEditMode = false;
+
 
     private async Task CreateMission()
     {
@@ -195,5 +206,58 @@
         {
             Console.WriteLine($"Error deleting missions: {ex.Message}");
         }
+    }
+
+    private async Task CallMethodForMission()
+    {
+        if (isEditMode)
+        {
+            await UpdateMission();
+        }
+        else
+        {
+            await CreateMission();
+        }
+    }
+
+    private async Task UpdateMission()
+    {
+        try
+        {
+            var updateRequest = new UpdateMissionItemReq
+                {
+                    Id = missionToUpdate.Id,
+                    Name = newMission.Name,
+                    Description = newMission.Description
+                };
+
+            var response = await MissionItemServiceClient.UpdateMissionItemAsync(updateRequest);
+
+            missionToUpdate = new UpdateMissionItemReq();
+            isEditMode = false;
+            await LoadInProgressMissions();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating mission: {ex.Message}");
+        }
+    }
+
+    private void UpdateForForm(MissionItem mission)
+    {
+        isEditMode = true;
+
+        missionToUpdate = new UpdateMissionItemReq
+            {
+                Id = mission.Id,
+                Name = mission.Name,
+                Description = mission.Description
+            };
+
+        newMission = new CreateMissionItemReq
+            {
+                Name = mission.Name,
+                Description = mission.Description
+            };
     }
 }
