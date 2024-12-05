@@ -2,12 +2,13 @@
 
 namespace ToDo.API.Domain.Entities
 {
-    public class TaskCategory : BaseEntity
+    public class MissionCategory : BaseEntity
     {
+        public int Id { get; set; }
         public string Name { get; set; }
-        public List<TaskItem> Items { get; set; } = new List<TaskItem>();
+        public List<MissionItem> Items { get; set; } = new List<MissionItem>();
 
-        public TaskCategory(string name) {
+        public MissionCategory(string name) {
             Name = name;
         }
 

@@ -3,15 +3,16 @@ using ToDo.API.Domain.Core.Models;
 
 namespace ToDo.API.Domain.Entities
 {
-    public class TaskItem : BaseEntity
+    public class MissionItem : BaseEntity
     {
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public bool IsCompleted { get; set; }
-        public Guid CategoryId { get; set; }
-        public TaskCategory Category { get; set; }
+        public int CategoryId { get; set; }
+        public MissionCategory Category { get; set; } = null!;
 
-        public TaskItem(string name, string description) {
+        public MissionItem(string name, string description) {
             Name = name;
             Description = description;
         }

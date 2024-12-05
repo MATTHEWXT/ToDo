@@ -3,7 +3,7 @@ using ToDo.UI.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddGrpcClient<Greeter.GreeterClient>(options =>
+builder.Services.AddGrpcClient<TaskItemService.TaskItemServiceClient>(options =>
 {
     options.Address = new Uri("https://localhost:7296");
 });

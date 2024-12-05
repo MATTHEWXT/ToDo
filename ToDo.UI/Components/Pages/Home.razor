@@ -1,21 +1,83 @@
 ﻿@page "/"
-@inject Greeter.GreeterClient grpcClient
 @rendermode InteractiveServer
 
-<h3>Data from gRPC:</h3>
-<p>@responseData</p>
+@page "/create-task"
 
-<h4>Enter your details:</h4>
-<input @bind="name" placeholder="Name" />
-<button @onclick="SendRequest">Send Request</button>
+@using System.Collections.Generic
+
+@inject TaskItemService.TaskItemServiceClient TaskItemServiceClient
+
+<h3>Create New Task</h3>
+
+<div class="container">
+    <!-- Task creation form -->
+    <div class="row">
+        <div class="col-md-6">
+            <form @onsubmit="CreateTask" class="form-horizontal">
+                <div class="form-group">
+                    <label for="taskName">Task Name</label>
+                    <input type="text" id="taskName" class="form-control" @bind="taskRequest.Name" placeholder="Enter task name" required />
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Description</label>
+                    <textarea id="taskDescription" class="form-control" @bind="taskRequest.Description" placeholder="Enter task description" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Task</button>
+            </form>
+        </div>
+    </div>
+
+    <hr />
+
+    <!-- Task list -->
+    <h4>In Progress</h4>
+    <div class="list-group">
+        @foreach (var task in inProgressTasks)
+        {
+            <div class="list-group-item">
+                <h5>@task.Name</h5>
+                <p>@task.Description</p>
+            </div>
+        }
+    </div>
+
+    <hr />
+
+    <h4>Completed</h4>
+    <div class="list-group">
+        @foreach (var task in completedTasks)
+        {
+            <div class="list-group-item">
+                <h5>@task.Name</h5>
+                <p>@task.Description</p>
+            </div>
+        }
+    </div>
+</div>
 
 @code {
-    private string name;
-    private string responseData;
+    private CreateMissionItemReq taskRequest = new CreateMissionItemReq();
+    private List<TaskItem> inProgressTasks = new List<TaskItem>();
+    private List<TaskItem> completedTasks = new List<TaskItem>();
 
-    private async Task SendRequest()
+    private async Task CreateTask()
     {
-        var response = await grpcClient.SayHelloAsync(new HelloRequest { Name = name });
-        responseData = response.Message;
+        if (string.IsNullOrWhiteSpace(taskRequest.Name) || string.IsNullOrWhiteSpace(taskRequest.Description))
+        {
+            return;
+        }
+    }
+
+    public class TaskRequest
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+    }
+
+    public class TaskItem
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string Status { get; set; } // "InProgress" or "Completed"
     }
 }

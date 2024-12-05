@@ -1,21 +1,35 @@
 syntax = "proto3";
 
-option csharp_namespace = "ToDo.UI";
+option csharp_namespace = "ToDo.UI.Protos";
 
 package greet;
+import "google/protobuf/empty.proto";
 
-// The greeting service definition.
-service Greeter {
+service MissionItemService {
   // Sends a greeting
-  rpc SayHello (HelloRequest) returns (HelloReply);
+  rpc CreateMissionItem (CreateMissionItemReq) returns (CreateRes);
+
+  rpc GetCompletedMissionkItem (google.protobuf.Empty) returns (GetCompletedMissionItemsResponse);
+
 }
 
 // The request message containing the user's name.
-message HelloRequest {
+message CreateMissionItemReq {
   string name = 1;
+  string description = 2;
 }
 
 // The response message containing the greetings.
-message HelloReply {
+message CreateRes {
   string message = 1;
+}
+
+message MissionItem {
+    string name = 1;
+    string description = 2;
+    string status = 3; 
+}
+
+message GetCompletedMissionItemsResponse {
+    repeated MissionItem missionItems = 1;
 }

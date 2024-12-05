@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace ToDo.API.Domain.Core.Repositories
+namespace ToDo.API.Domain.Core.Specifications
 {
     public class BaseSpecification<T> : IBaseSpecification<T>
     {

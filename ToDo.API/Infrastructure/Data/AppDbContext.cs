@@ -7,21 +7,21 @@ namespace ToDo.API.Infrastructure.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<TaskItem> TaskItems { get; set; }
-        public DbSet<TaskCategory> TaskCategories { get; set; }
+        public DbSet<MissionItem> TaskItems { get; set; }
+        public DbSet<MissionCategory> TaskCategories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<TaskItem>()
-                .HasOne(ti => ti.Category)
+            modelBuilder.Entity<MissionItem>()
+                .HasOne(mi => mi.Category)
                 .WithMany(c => c.Items)
                 .HasForeignKey(t => t.CategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<TaskCategory>()
-                .HasIndex(tc => tc.Name)
+            modelBuilder.Entity<MissionCategory>()
+                .HasIndex(mc => mc.Name)
                 .IsUnique();
         }
     }
